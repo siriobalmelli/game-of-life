@@ -74,7 +74,7 @@ var _ = self.life_view = function (table, size) {
 	
 _.prototype = {
 	make_grid:	function () {
-		var me = this;
+		var me = this; // because this does not always point to this ;)
 		
 		var fragment = document.createDocumentFragment();
 		this.grid.innerHTML = '';
@@ -88,6 +88,7 @@ _.prototype = {
 				var cell = document.createElement('td');
 				var checkbox = document.createElement('input');
 				checkbox.type = 'checkbox';
+				checkbox.coords = [y, x]; // so we know who calls an event
 				this.checkboxes[y][x] = checkbox;
 					
 				cell.appendChild(checkbox);
@@ -96,10 +97,43 @@ _.prototype = {
 					
 			fragment.appendChild(row);
 		}
-			
+		
+		// catch the user changing one of the checkboxes
 		this.grid.addEventListener('change', function(evt) {
 			if (evt.target.nodeName.toLowerCase() == 'input') {
 				me.started = false;
+			}
+		});
+		// catch the user moving around the grid with arrow keys
+		this.grid.addEventListener('keyup', function(evt) {
+			var box = evt.target;
+			
+			if (box.nodeName.toLowerCase() == 'input') {
+				var y = box.coords[0];
+				var x = box.coords[1];
+				
+				switch (evt.keyCode) {
+				case 37:	//left
+					if (x > 0) {
+						me.checkboxes[y][x-1].focus();
+					}
+					break;				
+				case 38:	//up
+					if (y > 0) {
+						me.checkboxes[y-1][x].focus();
+					}
+					break;	
+				case 39:	//right
+					if (x+1 < me.checkboxes[0].length) {
+						me.checkboxes[y][x+1].focus();
+					}
+					break;	
+				case 40:	//down
+					if (y+1 < me.checkboxes.length) {
+						me.checkboxes[y+1][x].focus();
+					}
+					break;	
+				}
 			}
 		});
 			
@@ -144,10 +178,7 @@ _.prototype = {
 })();
 
 
-var view = new life_view(document.getElementById('grid'), 12);
-
-
-// controllers
+// controls
 (function () {
 
 var buttons = {
@@ -168,3 +199,7 @@ buttons.auto.addEventListener('change', function() {
 });
 
 })();
+
+
+// main code
+var view = new life_view(document.getElementById('grid'), 12);
