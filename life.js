@@ -187,16 +187,27 @@ var buttons = {
 };
 
 buttons.next.addEventListener('click', function () {
-	view.next();
+	if (!view.timer) {
+		view.next();
+		buttons.next.textContent = 'Stop';
+	} else {
+		stop_game();
+	}
 });
 
 buttons.auto.addEventListener('change', function() {
 	buttons.next.textContent = this.checked? 'Start' : 'Next';
 	view.auto_play = this.checked;
 	if (!this.checked) {
-		clearTimeout(view.timer); // stop any turn I/P
+		stop_game();
 	}
 });
+
+function stop_game() {
+	clearTimeout(view.timer); // stop any turn I/P
+	view.timer = undefined;
+	buttons.next.textContent = 'Start';
+}
 
 })();
 

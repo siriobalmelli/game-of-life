@@ -13,7 +13,7 @@ h1 {
 }
 
 #grid {
-	margin: auto;
+	margin: 1em auto 0;
 	border-spacing: 0;
 	border-collapse: collapse;
 }
@@ -37,3 +37,11 @@ h1 {
 			background: black;
 			box-shadow: 0 0 0 99px black inset;
 		}
+button,
+.button {
+	padding: 0.3em 0.5em;
+	background: yellowgreen;
+	border: 0;
+	font: inherit;
+	border-radius: 0.3em;
+}
