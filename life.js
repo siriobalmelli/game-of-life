@@ -47,13 +47,37 @@ function clone_2d(array) {
 
 function alive_neigh(array, y, x) {
 
-	var prev_row = array[y-1] || [];
-	var next_row = array[y+1] || [];
+	// wrap up/down
+	var p_row;
+	if (y > 0) {
+		p_row = array[y-1];
+	} else {
+		p_row = array[array.length-1];
+	}
+	var n_row; 
+	if (y < array.length-1) {
+		n_row = array[y+1];
+	} else {
+		n_row = array[0];
+	}
+	// wrap side-to-size
+	var p_x;
+	if (x > 0) {
+		p_x = x-1;
+	} else {
+		p_x = array[0].length-1;
+	}
+	var n_x;
+	if (x < array[0].length-1) {
+		n_x = x+1;
+	} else {
+		n_x = 0;
+	}
 	
 	return [
-		prev_row[x-1], prev_row[x], prev_row[x+1],
-		array[y][x-1], array[y][x+1],
-		next_row[x-1], next_row[x], next_row[x+1]
+		p_row[p_x], p_row[x], p_row[n_x],
+		array[y][p_x], array[y][n_x],
+		n_row[p_x], n_row[x], n_row[n_x]
 		].reduce(function (prev, cur) {
 			return prev + +!!cur;
 		}, 0);
@@ -116,21 +140,29 @@ _.prototype = {
 				case 37:	//left
 					if (x > 0) {
 						me.checkboxes[y][x-1].focus();
+					} else { //wrap around
+						me.checkboxes[y][me.checkboxes[0].length-1].focus();
 					}
 					break;				
 				case 38:	//up
 					if (y > 0) {
 						me.checkboxes[y-1][x].focus();
+					} else {
+						me.checkboxes[me.checkboxes.length-1][x].focus();
 					}
 					break;	
 				case 39:	//right
 					if (x+1 < me.checkboxes[0].length) {
 						me.checkboxes[y][x+1].focus();
+					} else {
+						me.checkboxes[y][0].focus();
 					}
 					break;	
 				case 40:	//down
 					if (y+1 < me.checkboxes.length) {
 						me.checkboxes[y+1][x].focus();
+					} else {
+						me.checkboxes[0][x].focus();
 					}
 					break;	
 				}
@@ -170,7 +202,7 @@ _.prototype = {
 		if (this.auto_play) {
 			this.timer = setTimeout(function () {
 				me.next();
-			}, 1000);
+			}, 500);
 		}
 	}
 };
@@ -189,24 +221,23 @@ var buttons = {
 buttons.next.addEventListener('click', function () {
 	if (!view.timer) {
 		view.next();
-		buttons.next.textContent = 'Stop';
+		if (view.auto_play) {
+			buttons.next.textContent = 'Stop';
+		}
 	} else {
 		stop_game();
 	}
 });
 
 buttons.auto.addEventListener('change', function() {
-	buttons.next.textContent = this.checked? 'Start' : 'Next';
 	view.auto_play = this.checked;
-	if (!this.checked) {
-		stop_game();
-	}
+	stop_game();
 });
 
 function stop_game() {
 	clearTimeout(view.timer); // stop any turn I/P
 	view.timer = undefined;
-	buttons.next.textContent = 'Start';
+	buttons.next.textContent = buttons.auto.checked? 'Start' : 'Next';
 }
 
 })();
